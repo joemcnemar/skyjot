@@ -4,7 +4,7 @@ Sub joiner()
 'Open the first presentation (Make sure you use a COPY) and press Alt-F11 to open the vbe editor. INSERT > Module and paste in this code.
 'Run the code to combine the presentations.
 'source: http://www.pptalchemy.co.uk/powerpoint_combine.html
-'
+
 	Dim sFileTyp As String
 	Dim sFileName As String
 	Dim oDonor As Presentation
@@ -33,10 +33,13 @@ Sub joiner()
 	MsgBox "Sorry, there was an error"
 End Sub
 
-
 Sub Joiner2()
-'sort the files alphabetically before inserting slides
-'
+'Combine several presentations into one larger presentation. Sort the files alphabetically before inserting slides.
+'To use place a copy of all of the presentations EXCEPT the first in a folder on your desktop called "joiner" (no quotes).
+'Open the first presentation (Make sure you use a COPY) and press Alt-F11 to open the vbe editor. INSERT > Module and paste in this code.
+'Run the code to combine the presentations.
+'source: http://www.pptalchemy.co.uk/powerpoint_combine.html
+
 	Dim strName As String
 	Dim names() As String
 	Dim otarget As Presentation
@@ -71,4 +74,5 @@ Sub Joiner2()
 			otarget.Slides.InsertFromFile strFolder & names(i), otarget.Slides.Count
 		Next i
 	End If
+
 End Sub
