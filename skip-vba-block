@@ -1,0 +1,12 @@
+' skip block of code
+If False Then
+   ' Development code goes here
+End If
+
+' another pattern to skip block of code
+Dim Development As Boolean
+Development = True
+
+If Development Then
+   ' Development code goes here
+End If
