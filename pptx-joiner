@@ -1,0 +1,74 @@
+Sub joiner()
+'Combine several presentations into one larger presentation.
+'To use place a copy of all of the presentations EXCEPT the first in a folder on your desktop called "joiner" (no quotes).
+'Open the first presentation (Make sure you use a COPY) and press Alt-F11 to open the vbe editor. INSERT > Module and paste in this code.
+'Run the code to combine the presentations.
+'source: http://www.pptalchemy.co.uk/powerpoint_combine.html
+'
+	Dim sFileTyp As String
+	Dim sFileName As String
+	Dim oDonor As Presentation
+	Dim otarget As Presentation
+	Dim i As Integer
+	On Error GoTo errhandler
+	sFileTyp = "*.PPTX" ' change this for ppt, pptx, or pps
+
+	sFileName = Dir$(Environ("USERPROFILE") & "\Desktop\joiner\" & sFileTyp)
+	Set otarget = ActivePresentation
+	Do While sFileName <> ""
+		Set oDonor = Presentations.Open(Environ("USERPROFILE") & "\Desktop\joiner\" & sFileName, msoFalse)
+		For i = 1 To oDonor.Slides.Count
+			oDonor.Slides(i).Copy
+			With otarget.Slides.Paste(otarget.Slides.Count + 1)
+				.Design = oDonor.Slides(i).Design
+				.ColorScheme = oDonor.Slides(i).ColorScheme
+			End With
+		Next i
+		oDonor.Close
+		Set oDonor = Nothing
+		sFileName = Dir()
+	Loop
+	Exit Sub
+	errhandler:
+	MsgBox "Sorry, there was an error"
+End Sub
+
+
+Sub Joiner2()
+'sort the files alphabetically before inserting slides
+'
+	Dim strName As String
+	Dim names() As String
+	Dim otarget As Presentation
+	Dim osource As Presentation
+	Dim i As Long
+	Dim j As Long
+	Dim strBuffer1 As String
+	Dim strFolder As String
+	Set otarget = Presentations.Add
+	ReDim names(1 To 1)
+	strFolder = Environ("USERPROFILE") & "\Desktop\joiner\"
+	strName = Dir$(strFolder & "*.PPTX")
+	While strName <> ""
+		names(UBound(names)) = strName
+		ReDim Preserve names(1 To UBound(names) + 1)
+		strName = Dir()
+	Wend
+	If UBound(names) > 1 Then
+		'sort
+		For i = 1 To UBound(names) - 1
+			For j = (i + 1) To UBound(names) - 1
+				If UCase(names(i)) > UCase(names(j)) Then
+					strBuffer1 = names(j)
+					names(j) = names(i)
+					names(i) = strBuffer1
+				End If
+			Next
+		Next
+	End If
+	If UBound(names) > 0 Then
+		For i = 1 To UBound(names) - 1
+			otarget.Slides.InsertFromFile strFolder & names(i), otarget.Slides.Count
+		Next i
+	End If
+End Sub
