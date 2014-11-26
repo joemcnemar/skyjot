@@ -1,0 +1,118 @@
+http://learn-powershell.net/2011/02/11/using-powershell-to-query-web-site-information/
+http://blogs.technet.com/b/heyscriptingguy/archive/2013/10/21/invokerestmethod-for-the-rest-of-us.aspx
+http://stackoverflow.com/questions/22921529/powershell-webrequest-post
+https://blog.netnerds.net/2013/07/use-powershell-to-keep-a-cookiejar-and-post-to-a-web-form/
+http://stackoverflow.com/questions/508565/how-to-make-an-authenticated-web-request-in-powershell
+https://gist.github.com/nolim1t/271018
+
+https://www.simple-talk.com/sysadmin/powershell/powershell-data-basics-xml/
+
+PS> [char[]][byte[]](97,115,100,102)
+a
+s
+d
+f
+
+PS> [byte[]][char[]]'asdf'
+97
+115
+100
+102
+
+http://docs.telerik.com/fiddler
+http://fiddler.wikidot.com/
+
+get-content env:computername
+hostname
+[System.Net.Dns]::GetHostName()
+$env:COMPUTERNAME
+
+http://www.programmableweb.com/
+http://www.programmableweb.com/api/google-translate
+http://www.programmableweb.com/api/wikipedia
+http://wikisearch.dandelion.eu/#/
+
+
+####
+
+begin {
+    $web = New-Object Net.WebClient
+    #$web | Get-Member
+    $flag=$false
+}
+process {
+    {while ($flag -eq $false) {
+        try {
+            $web.DownloadString("http://www.google.com")
+            $flag=$true
+        }
+        catch {
+            Write-Warning "$($error[0])" -warningaction Inquire
+        }
+    }
+}
+end {
+    write-host -fore green "Success."
+}
+
+"{0} bytes" -f ($web.DownloadString("http://www.google.com")).length.toString("###,###,##0")
+
+$webRequest = [System.Net.WebRequest]::Create("http://www.google.com")
+#$webRequest | gm
+$webRequest.GetResponse()
+(($webRequest.GetResponse()).Statuscode) -as [int]
+
+####
+
+$url = "http://news.google.com"
+#$url = "http://www.seismi.org/api/eqs"
+
+$request = [System.Net.WebRequest]::Create($url)
+$request.Method="Get"
+$response = $request.GetResponse()
+$requestStream = $response.GetResponseStream()
+$readStream = New-Object System.IO.StreamReader $requestStream
+
+$data=$readStream.ReadToEnd()
+
+if($response.ContentType -match "application/xml") {
+    $results = [xml]$data
+} elseif($response.ContentType -match "application/json") {
+    $results = $data | ConvertFrom-Json
+} else {
+    try {
+        $results = [xml]$data
+    } catch {
+        $results = $data | ConvertFrom-Json
+    }
+}
+
+$results
+
+####
+
+#POST method
+$Body = [byte[]][char[]]'This is the content of the request body.'
+$Request = [System.Net.HttpWebRequest]::CreateHttp('http://www.mywebservicethatiwanttoquery.com/')
+$Request.Method = 'POST'
+$Stream = $Request.GetRequestStream()
+#Stream.Write parameters are buffer As Byte(), offset As Integer, count As Integer
+$Stream.Write($Body, 0, $Body.Length)
+$Request.GetResponse()
+
+####
+
+$ie = New-Object -COM InternetExplorer.Application
+$ie.Navigate($url)
+while ($ie.ReadyState -ne 4) { sleep 100 }
+$html = $ie.Document
+
+$html.title
+
+####
+
+Add-Type -AssemblyName System.Xml.Linq
+$txt=[IO.File]::ReadAllText("c:\myhtml.html")
+$xml = [System.Xml.Linq.XDocument]::Parse($txt)
+$ns='http://www.w3.org/1999/xhtml'
+$divs=$cells = $xml.Descendants("{$ns}td")
